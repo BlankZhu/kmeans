@@ -7,6 +7,7 @@ import math
 import csv
 import random
 import optparse
+import copy
 
 # functions begin here!
 
@@ -66,10 +67,10 @@ def CalcAvgPoint(cluster):
 def CalcCluster(dataset, k_points):
     # there are k clusters
     clusters = []
-    cnt = 0
-    while cnt < len(k_points):
+    for i in range(len(k_points)):
         clusters.append(list())
-        cnt += 1
+    for i in range(len(clusters)):
+        clusters[i].append(k_points[i])
 
     for point in dataset:
         # min_dist: a distance list from current 
@@ -88,7 +89,8 @@ def CalcCluster(dataset, k_points):
                 j = i
                 min_val = min_dist[i]
             i += 1
-        clusters[j].append(point)
+        if point not in k_points:
+            clusters[j].append(point)
 
     return clusters
 
@@ -118,25 +120,10 @@ def GetAllDist(dataset):
 # param[out]: list of selected points
 def GenerateKPoints(k, dataset):
     k_points = []
-    attrs = len(dataset[0])
-    max_min_list = []
-
-    for val in dataset[0]:
-        max_min_list.append([val, val])
-
-    for point in dataset:
-        for i in range(attrs):
-            val = point[i]
-            if val > max_min_list[i][0]:
-                max_min_list[i][0] = val
-            if val < max_min_list[i][1]:
-                max_min_list[i][1] = val
+    base_index = random.randint(0, k)
 
     for _k in range(k):
-        selected_point = []
-        for i in range(attrs):
-            selected_point.append(random.uniform(max_min_list[i][1], max_min_list[i][0]))
-        k_points.append(selected_point)
+        k_points.append(dataset[_k + base_index])
 
     return k_points
 
@@ -166,18 +153,15 @@ def run_k_means(k, dataset):
 
     # 2nd: get all distance, put them into cluster
     clusters = CalcCluster(dataset, k_points)
-    
+
     # 3rd
     last_k_points = []
     while not CheckSame(last_k_points, k_points):
-        # debugging
-        print(last_k_points)
-        print(k_points)
-        print('')
-
         last_k_points = k_points
         k_points = []
         for cluster in clusters:
+            if len(cluster) == 0:
+                continue
             k_points.append(CalcAvgPoint(cluster))
         clusters = CalcCluster(dataset, k_points)
 
