@@ -65,14 +65,22 @@ def CalcAvgPoint(cluster):
 # param[out]: cluster a list of point list
 def CalcCluster(dataset, k_points):
     # there are k clusters
-    clusters = [[]] * len(k_points)
+    clusters = []
+    cnt = 0
+    while cnt < len(k_points):
+        clusters.append(list())
+        cnt += 1
 
     for point in dataset:
+        # min_dist: a distance list from current 
+        #.. point to k_point
         min_dist = []
+        # calculate min_dist
         for kpoint in k_points:
             min_dist.append(CalcDist(point, kpoint))
 
-        i = 1
+        # get the minimun distance
+        i = 0
         j = 0
         min_val = min_dist[0]
         while i < len(min_dist):
@@ -80,9 +88,8 @@ def CalcCluster(dataset, k_points):
                 j = i
                 min_val = min_dist[i]
             i += 1
-
         clusters[j].append(point)
-    
+
     return clusters
 
 
@@ -159,10 +166,15 @@ def run_k_means(k, dataset):
 
     # 2nd: get all distance, put them into cluster
     clusters = CalcCluster(dataset, k_points)
-
+    
     # 3rd
     last_k_points = []
     while not CheckSame(last_k_points, k_points):
+        # debugging
+        print(last_k_points)
+        print(k_points)
+        print('')
+
         last_k_points = k_points
         k_points = []
         for cluster in clusters:
@@ -175,7 +187,7 @@ def run_k_means(k, dataset):
         print("center point: ", end='')
         print(k_points[i])
         print("cluster: ", end='')
-        print(cluster)
+        print(clusters[i])
 
 
 # main start here
